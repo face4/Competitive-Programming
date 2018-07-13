@@ -121,6 +121,11 @@ double dot(vec v1, vec v2){
     return v1.x * v2.x + v1.y * v2.y;
 }
 
+// vecの外積
+double cross(vec v1, vec v2){
+    return v1.x * v2.y - v1.y * v2.x;
+}
+
 // vecの2ノルムの2乗
 double norm_sq(vec v){
     return v.x * v.x + v.y * v.y;
@@ -168,11 +173,6 @@ double angle(point a, point o, point b){
     vec oa = toVec(o, a);
     vec ob = toVec(o, b);
     return acos(dot(oa, ob) / sqrt(norm_sq(oa) * norm_sq(ob)));
-}
-
-// vecの外積
-double cross(vec v1, vec v2){
-    return v1.x * v2.y - v1.y * v2.x;
 }
 
 // (未確認)
@@ -243,6 +243,21 @@ int inCircle(point p1, point p2, point p3, point &ctr, double &r){
     areIntersect(l1, l2, ctr);
 
     return 1;
+}
+
+// !未確認!(辺上の判定の可否のみ、内外の判定は検証済み)
+// point rが3つのpointからなる三角形の内部に存在するかどうかの判定
+// 三角形の内側に点があるとき、外積によるベクトルは同じ方向を向くことを利用
+// -1...内側 0...辺上 1...外側
+int inTriangle(point r, point a, point b, point c){
+    double c1 = cross(toVec(a,b), toVec(b,r));
+    double c2 = cross(toVec(b,c), toVec(c,r));
+    double c3 = cross(toVec(c,a), toVec(a,r));
+
+    if(c1 == 0 || c2 == 0 || c3 == 0)           return 0;
+    else if( (c1 > 0 && c2 > 0 && c3 > 0) || 
+        (c1 < 0 && c2 < 0 && c3 < 0)        )   return -1;
+    else                                        return 1;
 }
 
 // 三角形の外心,外接円関係の関数も頑張って書いて.
