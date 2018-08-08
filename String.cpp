@@ -3,6 +3,36 @@
 #include<vector>
 using namespace std;
 
+// Longest Common Substring[Subsequence]の長さを求める.
+// a, bがある程度長いと配列のメモリが確保されなくなるので、グローバル変数
+// として用意するなど何らかの対策が必要
+int getLCSlen(string a, string b){
+    int dp[a.length()][b.length()];
+    int ret = 0;
+
+    for(int i = 0; i < a.length(); i++){
+        for(int j = 0; j < b.length(); j++){
+            dp[i][j] = 0;
+        }
+    }
+
+    for(int j = 0; j < b.length(); j++) if(a[0] == b[j])    dp[0][j] = 1;
+    for(int i = 0; i < a.length(); i++) if(a[i] == b[0])    dp[i][0] = 1;
+
+    for(int i = 1; i < a.length(); i++){
+        for(int j = 1; j < b.length(); j++){
+            if(a[i] == b[j]){
+                dp[i][j] = dp[i-1][j-1]+1;
+                ret = max(ret, dp[i][j]);
+            }
+            // add these if you want to get longest common subsequence
+            // dp[i][j] = max(dp[i][j], max(dp[i-1][j], dp[i][j-1]));
+            // ret = max(ret, dp[i][j]);
+        }
+    }
+    return ret;
+}
+
 // strをdelで区切る.いずれdelがstringでも大丈夫なように作り変える.
 vector<string> split(string str, char del){
     vector<string> ret;
