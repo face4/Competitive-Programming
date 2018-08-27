@@ -11,7 +11,7 @@ ll modpow(ll a, ll b, ll p){
         ll d = modpow(a, b/2, p);
         return (d*d) % p;
     }else{
-        return (a * modpow(a, b-1, p)) % p;
+        return (a%mod * modpow(a, b-1, p)) % p;
     }
 }
 
