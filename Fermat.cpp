@@ -4,17 +4,26 @@ using namespace std;
 typedef long long ll;
 
 // a^b mod p を計算する
-ll powerInMod(ll a, ll b, ll p){
+ll modpow(ll a, ll b, ll p){
     if(b == 0)  return 1;
 
     if(b % 2 == 0){
-        ll d = powerInMod(a, b/2, p);
+        ll d = modpow(a, b/2, p);
         return (d*d) % p;
     }else{
-        return (a * powerInMod(a, b-1, p)) % p;
+        return (a * modpow(a, b-1, p)) % p;
     }
 }
 
+int modpow(int a, int b, int p){
+    int res = 1;
+    while(b > 0){
+        if(b & 1)   res = (res * a) % p;
+        b >>= 1;
+        a = (a * a) % p;
+    }
+    return res;
+}
 // 未検証
 // 組み合わせ mod pを逆元を用いて高速に求める
 // pが素数である必要がある

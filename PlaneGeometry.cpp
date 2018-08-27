@@ -1,15 +1,17 @@
 // code by face4
-// pointを位置ベクトルとしてみたときの外積を求めたい場面がちょこちょこあるので,
-// 何かしら実装した方が良いかもしれない.
 
 #include<iostream>
 #include<cmath>
 #include<vector>
 #include<algorithm>
+#include<iomanip>
 using namespace std;
 
 // 度->ラジアンの変換
 #define DEGtoRAD(X) (X*PI)/180.0
+#define Equals(a, b) (fabs(a-b) < EPS)
+#define fcout(n) cout << fixed << setprecision(n)
+
 // 円周率
 const double PI = 2 * acos(0.0);
 // 許容誤差.問題によって変える
@@ -20,7 +22,6 @@ struct point{
     point(){ x = y = 0.0;}
     point(double _x, double _y) : x(_x), y(_y) {}
 
-    // 不等号のオーバーロード.x座標,y座標で昇順ソート
     bool operator < (const point other) const{
         if(fabs(x - other.x) > EPS)
             return x < other.x;
@@ -28,10 +29,20 @@ struct point{
             return y < other.y;
     }
 
-    // 等号のオーバーロード.
     bool operator == (const point other) const{
-        return fabs(x - other.x) < EPS &&
-                fabs(y - other.y) < EPS;
+        return Equals(x,other.x) && Equals(y,other.y);
+    }
+
+    point operator + (point &p){
+        return point(x + p.x, y + p.y);
+    }
+
+    point operator - (point &p){
+        return point(x - p.x, y - p.y);
+    }
+
+    point operator * (double k){
+        return point(x * k, y * k);
     }
 };
 
@@ -47,6 +58,12 @@ point rotate(point p, double theta){
                  p.x * sin(rad) + p.y * cos(rad));
 }
 
+// pointの回転(point c中心).degreeは度数
+point rotateAroundPoint(point p, point c, double theta){
+    point tmp(p.x - c.x, p.y - c.y);
+    point rot = rotate(tmp, theta);
+    return point(rot.x + c.x, rot.y + c.y);
+}
 /* -------------------------------------------------- */
 
 // 直線 ax+by+c = 0
@@ -68,7 +85,7 @@ void pointsToLine(point p1, point p2, line &l){
 
 // 2つのlineの平行判定
 bool areParallel(line l1, line l2){
-    return fabs(l1.a - l2.a) < EPS && fabs(l2.a - l2.b) < EPS;
+    return Equals(l1.a,l2.a) && Equals(l2.a,l2.b);
 }
 
 // 2つのlineの一致判定
@@ -95,20 +112,11 @@ bool areIntersect(line l1, line l2, point &p){
 
 /* -------------------------------------------------- */
 
-// ベクトル
-struct vec{
-    double x, y;
-    vec(double _x, double _y) : x(_x), y(_y) {}
-};
+typedef point vec;
 
 // 2つのpoint a,b をvec a->b に変換
 vec toVec(point a, point b){
     return vec(b.x - a.x, b.y - a.y);
-}
-
-// vecの定数倍を定義
-vec scale(vec v, double s){
-    return vec(v.x * s, v.y * s);
 }
 
 // pointとvecの和
@@ -131,6 +139,10 @@ double norm_sq(vec v){
     return v.x * v.x + v.y * v.y;
 }
 
+double abs(vec v){
+    return sqrt(norm_sq(v));
+}
+
 // point p と point a,bが成す直線との距離
 // point cにはpをabに射影したpointが渡される
 // c = a + u * ab(未確認)
@@ -138,7 +150,7 @@ double distToLine(point p, point a, point b, point &c){
     vec ap = toVec(a, p);
     vec ab = toVec(a, b);
     double u = dot(ap, ab) / norm_sq(ab);
-    c = translate(a, scale(ab, u));
+    c = translate(a, ab*u);
     return dist(p, c);
 }
 
@@ -165,6 +177,27 @@ double distToLineSegment(point p, point a, point b, point &c){
     return distToLine(p, a, b, c);
 }
 
+point reflect(point p, point a, point b){
+    point intersec;
+    distToLine(p, a, b, intersec);
+    point x = (intersec - p)*2.0;
+    return p+x;
+}
+
+bool isOrthogonal(vec v1, vec v2){
+    return Equals(dot(v1, v2), 0.0);
+}
+bool isOrthogonal(point a1, point a2, point b1, point b2){
+    return isOrthogonal(a1-a2, b1-b2);
+}
+
+bool isParallel(vec v1, vec v2){
+    return Equals(cross(v1, v2), 0.0);
+}
+bool isParallel(point a1, point a2, point b1, point b2){
+    return isParallel(a1-a2, b1-b2);
+}
+
 /* -------------------------------------------------- */
 
 // 3つのpointが成す角(ラジアン).
@@ -175,7 +208,6 @@ double angle(point a, point o, point b){
     return acos(dot(oa, ob) / sqrt(norm_sq(oa) * norm_sq(ob)));
 }
 
-// (未確認)
 bool ccw(point p, point q, point r){
     return cross(toVec(p, q), toVec(p, r)) > 0;
 }
@@ -232,11 +264,11 @@ int inCircle(point p1, point p2, point p3, point &ctr, double &r){
     line l1, l2;
 
     double ratio = dist(p1, p2) / dist(p1, p3);
-    point p = translate(p2, scale(toVec(p2, p3), ratio / (1.0 + ratio)));
+    point p = translate(p2, toVec(p2, p3)*(ratio / (1.0 + ratio)));
     pointsToLine(p1, p, l1);
 
     ratio = dist(p2, p1) / dist(p2, p3);
-    p = translate(p1, scale(toVec(p1, p3), ratio / (1.0 + ratio)));
+    p = translate(p1, toVec(p1, p3)*(ratio / (1.0 + ratio)));
     pointsToLine(p2, p, l2);
     
     // l1とl2の交点を内心点ctrに代入

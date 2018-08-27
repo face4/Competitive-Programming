@@ -3,9 +3,36 @@
 #include<vector>
 using namespace std;
 
+bool isPalindrome(string s){
+    int n = s.length();
+    for(int i = 0; i < n/2; i++){
+        if(s[i] != s[n-1-i])    return false;
+    }
+    return true;
+}
+
+// 編集距離(レーヴェンシュタイン距離)を求める.
+// O(a.length() * b.length())
+// https://mathwords.net/hensyukyori
+int LevenDis(string a, string b){
+    int alen = a.length(), blen = b.length();
+    int dp[alen+1][blen+1];
+
+    for(int i = 0; i < alen+1; i++) dp[i][0] = i;
+    for(int j = 0; j < blen+1; j++) dp[0][j] = j;
+
+    for(int i = 1; i < alen+1; i++){
+        for(int j = 1; j < blen+1; j++){
+            dp[i][j] = min(dp[i-1][j]+1, min(dp[i][j-1]+1, dp[i-1][j-1] + (a[i-1] != b[j-1])));
+        }
+    }
+
+    return dp[alen][blen];
+}
+
 // Longest Common Substring[Subsequence]の長さを求める.
 // a, bがある程度長いと配列のメモリが確保されなくなるので、グローバル変数
-// として用意するなど何らかの対策が必要
+// として用意するかstacitで宣言するなど何らかの対策が必要
 int getLCSlen(string a, string b){
     int dp[a.length()][b.length()];
     int ret = 0;
