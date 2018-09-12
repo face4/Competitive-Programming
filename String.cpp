@@ -31,7 +31,7 @@ int LevenDis(string a, string b){
 }
 
 // Longest Common Substring[Subsequence]の長さを求める.
-// a, bがある程度長いと配列のメモリが確保されなくなるので、グローバル変数
+// a, bがある程度長いと配列dpのメモリが確保されなくなるので、グローバル変数
 // として用意するかstacitで宣言するなど何らかの対策が必要
 int getLCSlen(string a, string b){
     int dp[a.length()][b.length()];
@@ -61,7 +61,7 @@ int getLCSlen(string a, string b){
 }
 
 // strをdelで区切る.いずれdelがstringでも大丈夫なように作り変える.
-vector<string> split(string str, char del){
+vector<string> split(string str, char del = ' '){
     vector<string> ret;
     string cutoff = "";
     for(int i = 0; i < str.length(); i++){
