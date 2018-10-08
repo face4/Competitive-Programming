@@ -4,15 +4,13 @@
 #include<vector>
 using namespace std;
 
-typedef long long ll;
-
 struct Combination{
     int n;
-    vector<vector<ll>> dp;
+    vector<vector<int>> dp;
 
     Combination(int i){
         n = i;
-        dp = vector<vector<ll>>(n+1, vector<ll>(n+1, 0));
+        dp = vector<vector<int>>(n+1, vector<int>(n+1, 0));
         constructTriangle();
     }
 
@@ -28,7 +26,7 @@ struct Combination{
     }
 
     // return aCb
-    ll getCombination(int a, int b){
+    int getCombination(int a, int b){
         return dp[a][b];
     }
 };

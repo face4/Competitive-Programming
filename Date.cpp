@@ -17,6 +17,15 @@ int pastdays(int y, int m, int d){
     return 365*y + y/4 - y/100 + y/400 + (306*(m+1))/10 + d - 429;
 }
 
+// month, dayを受け取り1/1からの経過日数を返す
+// だいぶ雑なので、修正が必要かもしれない(うるう年を完全に無視しているので.)
+int mdTodays(int m, int d){
+    int ret = 0;
+    for(int i = 1; i < m; i++)  ret += days[i];
+    ret += d;
+    return ret;
+}
+
 int main(){
     return 0;
 }

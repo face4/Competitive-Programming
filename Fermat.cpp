@@ -15,19 +15,9 @@ ll modpow(ll a, ll b, ll p = 1e9+7){
     }
 }
 
-int modpow(int a, int b, int p){
-    int res = 1;
-    while(b > 0){
-        if(b & 1)   res = (res * a) % p;
-        b >>= 1;
-        a = (a * a) % p;
-    }
-    return res;
-}
-// 未検証
 // 組み合わせ mod pを逆元を用いて高速に求める
 // pが素数である必要がある
-ll nCm(ll n, ll m, ll p){
+ll nCm(ll n, ll m, ll p = 1e9+7){
     ll ret = 1;
     
     // nCm == nC(n-m)

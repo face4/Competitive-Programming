@@ -22,7 +22,7 @@ public:
         lazy.resize(2*n-1, 0);
     
         for(int i = 0; i < size; i++)   dat[i+n-1] = v[i];
-        for(int i = n-2; i >= 0; i--)   dat[i] = min(dat[2*i+1], dat[2*i+2]);
+        for(int i = n-2; i >= 0; i--)   dat[i] = dat[2*i+1] + dat[2*i+2];
     }
 
     // k番目のノードについて遅延評価を行う
@@ -40,7 +40,7 @@ public:
         }
     }
 
-    // 区間加算
+    // 区間加算 [a, b)にxを可算、注目する頂点kの被覆する区間が[l, r)
     void add(int a, int b, int x, int k=0, int l=0, int r=-1){
         if(r < 0)   r = n;
 

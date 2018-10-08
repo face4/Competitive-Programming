@@ -38,11 +38,11 @@ public:
 
         // [a, b)が[l, r)を完全に含む
         if(a <= l && r <= b)    return dat[k];
-        else{
-            int vl = query(a, b, 2*k+1, l, (l+r)/2);
-            int vr = query(a, b, 2*k+2, (l+r)/2, r);
-            return min(vl, vr);
-        }
+        
+        // それ以外
+        int vl = query(a, b, 2*k+1, l, (l+r)/2);
+        int vr = query(a, b, 2*k+2, (l+r)/2, r);
+        return min(vl, vr);
     }
 };
 
