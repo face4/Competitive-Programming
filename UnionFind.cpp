@@ -18,7 +18,7 @@ class DisjointSet{
         return findSet(x) == findSet(y);
     }
     
-    bool unite(int x, int y){
+    void unite(int x, int y){
         link(findSet(x), findSet(y));
     }
 

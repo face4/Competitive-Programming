@@ -85,7 +85,7 @@ void pointsToLine(point p1, point p2, line &l){
 
 // 2つのlineの平行判定
 bool areParallel(line l1, line l2){
-    return Equals(l1.a,l2.a) && Equals(l2.a,l2.b);
+    return Equals(l1.a,l2.a) && Equals(l1.b,l2.b);
 }
 
 // 2つのlineの一致判定
