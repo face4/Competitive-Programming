@@ -16,6 +16,7 @@ void add_edge(int from, int to, int cap){
     G[to].push_back((edge){from, 0, (int)G[from].size()-1});
 }
 
+// v...target vertex, t...end vertex, f...maximum flow 
 int dfs(int v, int t, int f){
     if(v == t)  return f;
 
@@ -37,6 +38,7 @@ int dfs(int v, int t, int f){
 
 const int INF = 1<<29;
 
+// maxflow from s to t
 int max_flow(int s, int t){
     int flow = 0;
     while(1){

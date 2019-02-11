@@ -3,46 +3,79 @@
 #include<climits>
 using namespace std;
 
+// 何も考えずにコンストラクタに元配列(vector)を入れればよい
+// クエリurry(a, b)は区間[a, b)に対応
+// 配列の末尾を区間に含めたい場合はquery(0, ***n+1***)として呼ばなければいけないことに注意
 /*                          */
-const int INF = 1<<21;
+const int INF = 1<<30;
 
-class SegmentTree{
-public:
+struct STmin{
+private:
     int n;
     vector<int> dat;
-    
-    SegmentTree(vector<int> v){
-        int size = v.size();
+public:
+    STmin(vector<int> ini){
+        int siz = ini.size();
         n = 1;
-        while(n < size) n *= 2;
-        dat.resize(2*n - 1, INF);
-    
-        for(int i = 0; i < size; i++)   dat[i+n-1] = v[i];
+        while(n < siz)   n *= 2;
+        dat.resize(2*n-1, INF);
+        for(int i = 0; i < siz; i++)    dat[n - 1 + i] = ini[i];
         for(int i = n-2; i >= 0; i--)   dat[i] = min(dat[2*i+1], dat[2*i+2]);
     }
 
     void update(int x, int val){
-        x += n-1;
+        x += (n-1);
         dat[x] = val;
         while(x > 0){
-            x = (x-1) / 2;
-            dat[x] = min(dat[2*x+1], dat[2*x+2]);
+            x = (x-1)/2;
+            node[x] = min(node[2*x+1], node[2*x+2]);
         }
     }
 
-    // [a, b)の最小値を求める
-    // 外からはquery(a, b, 0, 0, n)として呼ぶ
-    int query(int a, int b, int k, int l, int r){
-        // [a, b)と[l, r)が交わらない
-        if(r <= a || b <= l)    return INT_MAX;
-
-        // [a, b)が[l, r)を完全に含む
+    // focus on k-th node, who controls [l, r)
+    int query(int a, int b, int k = 0, int l = 0, int r = -1){
+        if(r < 0)   r = n;
+        if(r <= a || b <= l)    return INF;
         if(a <= l && r <= b)    return dat[k];
-        
-        // それ以外
-        int vl = query(a, b, 2*k+1, l, (l+r)/2);
-        int vr = query(a, b, 2*k+2, (l+r)/2, r);
-        return min(vl, vr);
+
+        int lx = query(a, b, 2*k+1, l, (l+r)/2);
+        int rx = query(a, b, 2*k+2, (l+r)/2, r);
+        return min(lx, rx);
+    }
+};
+
+struct STmax{
+private:
+    int n;
+    vector<int> dat;
+public:
+    STmax(vector<int> ini){
+        int siz = ini.size();
+        n = 1;
+        while(n < siz)   n *= 2;
+        dat.resize(2*n-1, -INF);
+        for(int i = 0; i < siz; i++)    dat[n - 1 + i] = ini[i];
+        for(int i = n-2; i >= 0; i--)   dat[i] = max(dat[2*i+1], dat[2*i+2]);
+    }
+
+    void update(int x, int val){
+        x += (n-1);
+        dat[x] = val;
+        while(x > 0){
+            x = (x-1)/2;
+            node[x] = max(node[2*x+1], node[2*x+2]);
+        }
+    }
+    
+    // focus on k-th node, who controls [l, r)
+    int query(int a, int b, int k = 0, int l = 0, int r = -1){
+        if(r < 0)   r = n;
+        if(r <= a || b <= l)    return -INF;
+        if(a <= l && r <= b)    return dat[k];
+
+        int lx = query(a, b, 2*k+1, l, (l+r)/2);
+        int rx = query(a, b, 2*k+2, (l+r)/2, r);
+        return max(lx, rx);
     }
 };
 
