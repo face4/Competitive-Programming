@@ -1,81 +1,76 @@
-//　!!! 未検証 !!!
 #include<iostream>
 #include<vector>
-#include<climits>
 using namespace std;
+typedef long long ll;
 
-// 区間可算・区間和を扱う遅延セグメント木
-// http://tsutaj.hatenablog.com/entry/2017/03/30/224339
-/*                          */
-const int INF = 1<<21;
-
-class LazySegmentTree{
-public:
+// クエリは全て半開区間[a,b)
+class STlazy{
+private:
     int n;
-    vector<int> dat, lazy;
-    
-    LazySegmentTree(vector<int> v){
-        int size = v.size();
+    vector<ll> node, lazy;
+
+public:
+    STlazy(vector<ll> v){
+        int siz = v.size();
         n = 1;
-        while(n < size) n *= 2;
-        dat.resize(2*n - 1, INF);
+        while(n < siz)  n *= 2;
+        node.resize(2*n-1, 0);
         lazy.resize(2*n-1, 0);
-    
-        for(int i = 0; i < size; i++)   dat[i+n-1] = v[i];
-        for(int i = n-2; i >= 0; i--)   dat[i] = dat[2*i+1] + dat[2*i+2];
+        
+        for(int i = 0; i < siz; i++)    node[n-1+i] = v[siz];
+        for(int i = n-2; i >= 0; i--)   node[i] = node[2*i+1] + node[2*2+2];
     }
 
-    // k番目のノードについて遅延評価を行う
     void eval(int k, int l, int r){
-        if(lazy[k] != 0){
-            dat[k] += lazy[k];
-
-            if(r-l > 1){
-                // 最下段でない
-                lazy[2*k+1] = lazy[k] / 2;
-                lazy[2*k+2] = lazy[k] / 2;
-            }
-            
-            lazy[k] = 0;
+        if(lazy[k] == 0)    return;
+        node[k] += lazy[k];
+        if(r-l > 1){
+            lazy[2*k+1] += lazy[k]/2;
+            lazy[2*k+2] += lazy[k]/2;
         }
+        lazy[k] = 0;
     }
 
-    // 区間加算 [a, b)にxを可算、注目する頂点kの被覆する区間が[l, r)
-    void add(int a, int b, int x, int k=0, int l=0, int r=-1){
+    void add(int a, int b, ll x, int k=0, int l=0, int r=-1){
         if(r < 0)   r = n;
-
-        // 範囲外
-        if(b <= l || r <= a)    return;
-
-        // 完全に被覆
+        eval(k, l, r);
+        if(r <= a || b <= l)    return;
         if(a <= l && r <= b){
-            lazy[k] += (r - l) * x;
+            lazy[k] += (r-l)*x;
             eval(k, l, r);
+            return;
         }
-        // 部分的に被覆
-        else{
-            add(a, b, x, 2*k+1, l, (l+r)/2);
-            add(a, b, x, 2*k+2, (l+r)/2, r);
-            dat[k] = dat[2*k+1] + dat[2*k+2];
-        }
+        add(a, b, x, 2*k+1, l, (l+r)/2);
+        add(a, b, x, 2*k+2, (l+r)/2, r);
+        node[k] = node[2*k+1] + node[2*k+2]; // 自分の全ての子孫の値伝播が終わったら自分を更新する
     }
 
-    // 区間和
-    int getsum(int a, int b, int k=0, int l=0, int r=-1){
-            if(r < 0)   r = n;
-
-            eval(k, l, r);
-
-            if(b <= l || r <= a)    return 0;
-            if(a <= l && r <= b)    return dat[k];
-
-            int vl = getsum(a, b, 2*k+1, l, (l+r)/2);
-            int vr = getsum(a, b, 2*k+2, (l+r)/2, r);
-            return vl + vr;
+    // find(i)を区間幅1の区間和に対するクエリとみなすので実質b=a+1
+    ll query(int a, int b, int k=0, int l=0, int r=-1){
+        if(r < 0)   r = n;
+        if(r <= a || b <= l)    return 0;
+        eval(k, l, r); // 最初の呼び出しが必ずeval(0,0,n)となるので漏れなく上から値の伝播がなされている
+        if(a <= l && r <= b)    return node[k];
+        ll lx = query(a, b, 2*k+1, l, (l+r)/2);
+        ll rx = query(a, b, 2*k+2, (l+r)/2, r);
+        return lx+rx;
     }
-
 };
 
 int main(){
-
+    int n, q;
+    cin >> n >> q;
+    vector<ll> v(n, 0);
+    STlazy st(v);
+    while(q-- > 0){
+        int a, b, c, d;
+        cin >> a >> b;
+        if(a == 0){
+            cin >> c >> d;
+            st.add(b, c+1, d);
+        }else{
+            cout << st.query(b, b+1) << endl;
+        }
+    }
+    return 0;
 }

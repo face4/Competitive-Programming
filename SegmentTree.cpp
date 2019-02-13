@@ -4,9 +4,10 @@
 using namespace std;
 
 // 何も考えずにコンストラクタに元配列(vector)を入れればよい
-// クエリurry(a, b)は区間[a, b)に対応
+// クエリquery(a, b)は区間[a, b)に対応
 // 配列の末尾を区間に含めたい場合はquery(0, ***n+1***)として呼ばなければいけないことに注意
 /*                          */
+typedef long long ll;
 const int INF = 1<<30;
 
 struct STmin{
