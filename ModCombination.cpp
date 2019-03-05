@@ -39,7 +39,7 @@ struct ModComb{
 
     ll nHk(ll n, ll k){
         if(n == 0 && k == 0)    return 1;
-        return nCk(n+k-1, k);
+        return nCk(n+k-1, k-1);
     }
 };
 
