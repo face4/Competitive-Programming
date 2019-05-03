@@ -28,11 +28,13 @@ struct ModComb{
     }
     
     ll nCk(ll n, ll k){
+        if(k == 0)  return 1;
         if(n < k)   return 0;
         return (((po[n]*inv[n-k])%mod)*inv[k])%mod;
     }
 
     ll nPk(ll n, ll k){
+        if(k == 0)  return 1;
         if(n < k)   return 0;
         return (po[n]*inv[n-k])%mod;
     }

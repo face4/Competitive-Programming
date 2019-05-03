@@ -3,7 +3,6 @@
 using namespace std;
 typedef long long ll;
 
-// クエリは全て半開区間[a,b)
 class STlazy{
 private:
     int n;
