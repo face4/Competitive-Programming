@@ -16,8 +16,8 @@ public:
         node.resize(2*n-1, 0);
         lazy.resize(2*n-1, 0);
         
-        for(int i = 0; i < siz; i++)    node[n-1+i] = v[siz];
-        for(int i = n-2; i >= 0; i--)   node[i] = node[2*i+1] + node[2*2+2];
+        for(int i = 0; i < siz; i++)    node[n-1+i] = v[i];
+        for(int i = n-2; i >= 0; i--)   node[i] = node[2*i+1] + node[2*i+2];
     }
 
     void eval(int k, int l, int r){
@@ -44,7 +44,6 @@ public:
         node[k] = node[2*k+1] + node[2*k+2]; // 自分の全ての子孫の値伝播が終わったら自分を更新する
     }
 
-    // find(i)を区間幅1の区間和に対するクエリとみなすので実質b=a+1
     ll query(int a, int b, int k=0, int l=0, int r=-1){
         if(r < 0)   r = n;
         if(r <= a || b <= l)    return 0;

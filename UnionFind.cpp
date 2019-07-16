@@ -1,3 +1,25 @@
+// 簡易UF
+struct UF{
+    vector<int> p;
+    int n;
+
+    UF(int siz){
+        n = siz;
+        p.resize(n, 0);
+        for(int i = 0; i < n; i++)  p[i] = i;
+    }
+
+    int parent(int x){
+        if(p[x] != x)   p[x] = parent(p[x]);
+        return p[x];
+    }
+
+    void unite(int x, int y){
+        x = parent(x), y = parent(y);
+        p[x] = y;
+    }
+};
+
 class DisjointSet{
   public:
     vector<int> rank, p;
