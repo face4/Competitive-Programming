@@ -33,7 +33,7 @@ int ccw(Point p0, Point p1, Point p2);
 bool intersect(Point p1, Point p2, Point p3, Point p4);
 bool intersect(Segment s1, Segment s2);
 bool intersect(Circle c, Line l); // 誤差の検証をしていない
-bool intersect(Circle c1, Circle c2);
+bool intersect(Circle c1, Circle c2); // 誤差の検証をしていない
 
 Point project(Segment s, Point p);
 Point reflect(Segment s, Point p);
