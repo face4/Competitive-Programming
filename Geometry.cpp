@@ -50,7 +50,7 @@ double arg(Vector p);   // 偏角
 Vector polar(double a, double r); // 極座標系->ベクトル
 
 Polygon andrewScan(Polygon g); // 凸包の辺上の点も含めたければ!=CLOCKWISEを==COUNTER_CLOCKWISEに
-double convexDiameter(Polygon g); // gはconvex 検証済みだが理屈はわかっていない(http://www.prefield.com/algorithm/geometry/convex_diameter.html)
+double convexDiameter(Polygon g); // gはconvex 
 
 
 struct Point{
@@ -219,6 +219,7 @@ pair<Point,Point> getContactPoints(Circle c, Point p){
 }
 
 double area(Polygon g){
+    if(g.size() < 3)    return 0;
     int n = g.size();
     Point o(0.0, 0.0);
     double s = 0.0;

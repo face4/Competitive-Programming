@@ -29,7 +29,7 @@ public:
         dat[x] = val;
         while(x > 0){
             x = (x-1)/2;
-            node[x] = min(node[2*x+1], node[2*x+2]);
+            dat[x] = min(dat[2*x+1], dat[2*x+2]);
         }
     }
 
@@ -64,7 +64,7 @@ public:
         dat[x] = val;
         while(x > 0){
             x = (x-1)/2;
-            node[x] = max(node[2*x+1], node[2*x+2]);
+            dat[x] = max(dat[2*x+1], dat[2*x+2]);
         }
     }
     
