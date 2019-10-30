@@ -14,6 +14,10 @@ struct UF{
         return p[x];
     }
 
+    bool same(int x, int y){
+        return parent(x) == parent(y);
+    }
+    
     void unite(int x, int y){
         x = parent(x), y = parent(y);
         p[x] = y;

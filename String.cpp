@@ -45,6 +45,11 @@ int getLCSlen(string a, string b){
 
     for(int j = 0; j < b.length(); j++) if(a[0] == b[j])    dp[0][j] = 1;
     for(int i = 0; i < a.length(); i++) if(a[i] == b[0])    dp[i][0] = 1;
+    
+    // add these if you want to get longest common subsequence
+    // for(int i = 1; i < a.length(); i++) dp[i][0] = max(dp[i][0], dp[i-1][0]);
+    // for(int j = 1; j < b.length(); j++) dp[0][j] = max(dp[0][j], dp[0][j-1]);
+
 
     for(int i = 1; i < a.length(); i++){
         for(int j = 1; j < b.length(); j++){
@@ -106,6 +111,50 @@ bool contains(string str, string pre){
     return false;
 }
 
+/* suffix array O(n logn logn) */
+#define MAX_N 1000000
+int n, k;
+int rnk[MAX_N+1];
+int tmp[MAX_N+1];
+
+bool compare_sa(int i, int j){
+    if(rnk[i] != rnk[j]){
+        return rnk[i] < rnk[j];
+    }else{
+        int ri = i+k <= n ? rnk[i+k] : -1;
+        int rj = j+k <= n ? rnk[j+k] : -1;
+        return ri < rj;
+    }
+}
+
+void construct_sa(string s, int *sa){
+    n = s.length();
+    for(int i = 0; i <= n; i++){
+        sa[i] = i;
+        rnk[i] = i < n ? s[i] : -1;
+    }
+    for(k = 1; k <= n; k *= 2){
+        sort(sa, sa+n+1, compare_sa);
+        tmp[sa[0]] = 0;
+        for(int i = 1; i <= n; i++){
+            tmp[sa[i]] = tmp[sa[i-1]] + (compare_sa(sa[i-1], sa[i]) ? 1 : 0);
+        }
+        for(int i = 0; i <= n; i++){
+            rnk[i] = tmp[i];
+        }
+    }
+}
+
+bool contain(string s, int *sa, string t){
+    int a = 0, b = s.length();
+    while(b - a > 1){
+        int c = (a+b)/2;
+        if(s.compare(sa[c], t.length(), t) < 0) a = c;
+        else    b = c;
+    }
+    return s.compare(sa[b], t.length(), t) == 0;
+}
+/*  */
 
 int main(){
     cout << startsWith("0010","01") << endl;
