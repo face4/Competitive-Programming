@@ -7,7 +7,7 @@ typedef vector<ll> vec;
 typedef vector<vec> mat;
 ll mod = 1000000007;
 
-mat mul(mat &A, mat &B){
+mat mul(const mat &A, const mat &B){
     mat C(A.size(), vec(B[0].size()));
     for(int i = 0; i < A.size(); i++){
         for(int k = 0; k < B.size(); k++){
