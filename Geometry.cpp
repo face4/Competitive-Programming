@@ -52,6 +52,9 @@ Vector polar(double a, double r); // 極座標系->ベクトル
 Polygon andrewScan(Polygon g); // 凸包の辺上の点も含めたければ!=CLOCKWISEを==COUNTER_CLOCKWISEに
 double convexDiameter(Polygon g); // gはconvex 
 
+struct Line2d;  // 直線を2つのPointではなくax+by+c=0の形で表したいときに
+void tangents(Point p, double r1, double r2, vector<Line2d> &v);    // https://cp-algorithms.com/geometry/tangents-to-two-circles.html
+vector<Line2d> commonTangents(Circle c1, Circle c2);
 
 struct Point{
     double x, y;
@@ -200,7 +203,7 @@ pair<Point,Point> getCrossPoints(Circle c, Line l){
     assert(intersect(c, l));
     Vector pr = project(l, c.c);
     Vector e = (l.p2 - l.p1) / abs(l.p2 - l.p1);
-    double base = sqrt(c.r * c.r - norm(pr - c.c));
+    double base = sqrt(fabs(c.r * c.r - norm(pr - c.c)));
     return make_pair(pr + e*base, pr - e*base);
 }
 
@@ -320,16 +323,45 @@ double convexDiameter(Polygon g){
 }
 
 
+struct Line2d{
+    double a, b, c;
+    double eval(double x){
+        // fail when b is zero (= the line is orthogonal to x axis)
+        return (-a*x-c)/b;   
+    }
+};
+
+void tangents(Point p, double r1, double r2, vector<Line2d> &v){
+    double r = r2-r1;
+    double z = p.x*p.x + p.y*p.y;
+    double d = z - r*r;
+    if(d < -EPS)    return; // discriminant < 0 means there's no answer
+    d = sqrt(d);
+    Line2d l;
+    l.a = (p.x*r + p.y*d) / z;
+    l.b = (p.y*r - p.x*d) / z;
+    l.c = r1;
+    v.push_back(l);
+}
+
+vector<Line2d> commonTangents(Circle c1, Circle c2){
+    if(c1.r > c2.r) swap(c1, c2);
+    vector<Line2d> ans;
+    if(c1.c == c2.c && c1.r == c2.r)            return ans;
+    if(getDistance(c1.c, c2.c) < c2.r-c1.r)     return ans;
+    for(int i : {-1, 1}){
+        for(int j : {-1, 1}){
+            tangents(c2.c-c1.c, c1.r*i, c2.r*j, ans);
+        }
+    }
+    for(int i = 0; i < ans.size(); i++){
+        ans[i].c -= ans[i].a*c1.c.x + ans[i].b*c1.c.y;
+    }
+    return ans;
+}
+
+
 
 int main(){
-    int n;
-    cin >> n;
-    Polygon g;
-    for(int i = 0; i < n; i++){
-        double x, y;
-        cin >> x >> y;
-        g.push_back(Point(x,y));
-    }
-    cout << fixed << setprecision(12) << convexDiameter(g) << endl;
     return 0;
 }
