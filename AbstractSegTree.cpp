@@ -35,13 +35,15 @@ public:
         }
     }
 
-    T query(int a, int b, int k=0, int l=0, int r=-1){
-        if(r < 0)   r = n;
-        if(b <= l || r <= a)    return def;
-        if(a <= l && r <= b)    return node[k];
-        T lx = query(a, b, 2*k+1, l, (l+r)/2);
-        T rx = query(a, b, 2*k+2, (l+r)/2, r);
-        return f(lx, rx);
+    T query(int a, int b){
+        int L = a+n-1, R = b+n-1;
+        T ret = def;
+        while(L < R){
+            if((R&1) == 0)  ret = f(ret, node[--R]);
+            if((L&1) == 0)  ret = f(ret, node[L++]);
+            L >>= 1, R >>= 1;
+        }
+        return ret;
     }
 };
 

@@ -3,6 +3,42 @@
 #include<vector>
 using namespace std;
 
+// KMP
+vector<int> createTable(const string &pat){
+    vector<int> table(pat.length());
+    table[0] = 0;
+    int j = 0;
+    for(int i = 1; i < pat.length(); i++){
+        if(pat[i] == pat[j]){
+            table[i] = j++;
+        }else{
+            table[i] = j;
+            j = 0;
+        }
+    }
+    return table;
+}
+
+int kmpSearch(string &text, string &pat){
+    vector<int> table = createTable(pat);
+    int tind = 0, pind = 0;
+    while(tind < text.length() && pind < pat.length()){
+        if(text[tind] == pat[pind]){
+            tind++;
+            pind++;
+        }else if(pind == 0){
+            tind++;
+        }else{
+            pind = table[pind];
+        }
+    }
+    if(pind == pat.length()){
+        return tind-pat.length();
+    }
+    return -1;
+}
+
+
 bool isPalindrome(string s){
     int n = s.length();
     for(int i = 0; i < n/2; i++){

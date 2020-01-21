@@ -4,6 +4,7 @@
 #include<cmath>
 #include<algorithm>
 #include<cassert>
+#include<cfloat>
 using namespace std;
 
 #define EPS (1e-10)
@@ -55,6 +56,9 @@ double convexDiameter(Polygon g); // gはconvex
 struct Line2d;  // 直線を2つのPointではなくax+by+c=0の形で表したいときに
 void tangents(Point p, double r1, double r2, vector<Line2d> &v);    // https://cp-algorithms.com/geometry/tangents-to-two-circles.html
 vector<Line2d> commonTangents(Circle c1, Circle c2);
+
+double smallestEnclosingCircle(Polygon g);  // 最小包含円 O(N^3) https://www.jaist.ac.jp/~uehara/course/2014/i481f/pdf/ppt-7.pdf
+
 
 struct Point{
     double x, y;
@@ -360,8 +364,58 @@ vector<Line2d> commonTangents(Circle c1, Circle c2){
     return ans;
 }
 
-
+double smallestEnclosingCircle(Polygon g){
+    double ret = DBL_MAX;
+    int n = g.size();
+    for(int i = 0; i < n; i++){
+        for(int j = i+1; j < n; j++){
+            double mx = (g[i].x+g[j].x)/2.0, my = (g[i].y+g[j].y)/2.0;
+            double r = sqrt(pow(g[i].x-mx, 2.0)+pow(g[i].y-my, 2.0));
+            bool valid = true;
+            vector<bool> in(n, 0);
+            for(int k = 0; k < n; k++){
+                in[k] = sqrt(pow(g[k].x-mx,2.0)+pow(g[k].y-my,2.0)) <= r+EPS;
+                valid &= in[k];
+            }
+            if(valid)   ret = min(ret, r);
+            for(int k = 0; k < n; k++){
+                if(in[k])   continue;
+                double a = g[j].x-g[i].x;
+                double b = g[k].x-g[j].x;
+                double c = g[j].y-g[i].y;
+                double d = g[k].y-g[j].y;
+                double X = -(g[i].x*g[i].x-g[j].x*g[j].x+g[i].y*g[i].y-g[j].y*g[j].y);
+                double Y = -(g[j].x*g[j].x-g[k].x*g[k].x+g[j].y*g[j].y-g[k].y*g[k].y);
+                double cy = X/2*b - Y/2*a;
+                cy /= (b*c-a*d);
+                double cx = (X/2-c*cy)/a;
+                double radius = sqrt(pow(g[k].x-cx,2.0)+pow(g[k].y-cy,2.0));
+                if(radius > r){
+                    r = radius;
+                    mx = cx;
+                    my = cy;
+                }
+            }
+            valid = true;
+            for(int k = 0; k < n; k++){
+                valid &= sqrt(pow(g[k].x-mx,2.0)+pow(g[k].y-my,2.0)) <= r+EPS;
+            }
+            if(valid)   ret = min(ret, r);
+        }
+    }
+    // center of smallestEnclosingCircle is (mx, my)
+    return ret;
+}
 
 int main(){
+    int n;
+    cin >> n;
+    Polygon g;
+    for(int i = 0; i < n; i++){
+        double x, y;
+        cin >> x >> y;
+        g.push_back({x, y});
+    }
+    cout << fixed << setprecision(12) << smallestEnclosingCircle(g) << endl;
     return 0;
 }
