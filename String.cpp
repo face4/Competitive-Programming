@@ -38,15 +38,6 @@ int kmpSearch(string &text, string &pat){
     return -1;
 }
 
-
-bool isPalindrome(string s){
-    int n = s.length();
-    for(int i = 0; i < n/2; i++){
-        if(s[i] != s[n-1-i])    return false;
-    }
-    return true;
-}
-
 // 編集距離(レーヴェンシュタイン距離)を求める.
 // O(a.length() * b.length())
 // https://mathwords.net/hensyukyori
@@ -101,22 +92,6 @@ int getLCSlen(string a, string b){
     return ret;
 }
 
-// strをdelで区切る.いずれdelがstringでも大丈夫なように作り変える.
-vector<string> split(string str, char del = ' '){
-    vector<string> ret;
-    string cutoff = "";
-    for(int i = 0; i < str.length(); i++){
-        if(str[i] == del){
-            if(cutoff != "")    ret.push_back(cutoff);
-            cutoff = "";
-        }else{
-            cutoff += str[i];
-        }
-    }
-    if(cutoff != "")    ret.push_back(cutoff);
-    return ret;
-}
-
 // strの接頭辞がpreかどうかを判別する.
 bool startsWith(string str, string pre){
     int s = str.length(), p = pre.length();
@@ -146,51 +121,6 @@ bool contains(string str, string pre){
 
     return false;
 }
-
-/* suffix array O(n logn logn) */
-#define MAX_N 1000000
-int n, k;
-int rnk[MAX_N+1];
-int tmp[MAX_N+1];
-
-bool compare_sa(int i, int j){
-    if(rnk[i] != rnk[j]){
-        return rnk[i] < rnk[j];
-    }else{
-        int ri = i+k <= n ? rnk[i+k] : -1;
-        int rj = j+k <= n ? rnk[j+k] : -1;
-        return ri < rj;
-    }
-}
-
-void construct_sa(string s, int *sa){
-    n = s.length();
-    for(int i = 0; i <= n; i++){
-        sa[i] = i;
-        rnk[i] = i < n ? s[i] : -1;
-    }
-    for(k = 1; k <= n; k *= 2){
-        sort(sa, sa+n+1, compare_sa);
-        tmp[sa[0]] = 0;
-        for(int i = 1; i <= n; i++){
-            tmp[sa[i]] = tmp[sa[i-1]] + (compare_sa(sa[i-1], sa[i]) ? 1 : 0);
-        }
-        for(int i = 0; i <= n; i++){
-            rnk[i] = tmp[i];
-        }
-    }
-}
-
-bool contain(string s, int *sa, string t){
-    int a = 0, b = s.length();
-    while(b - a > 1){
-        int c = (a+b)/2;
-        if(s.compare(sa[c], t.length(), t) < 0) a = c;
-        else    b = c;
-    }
-    return s.compare(sa[b], t.length(), t) == 0;
-}
-/*  */
 
 int main(){
     cout << startsWith("0010","01") << endl;
