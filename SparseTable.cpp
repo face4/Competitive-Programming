@@ -32,6 +32,39 @@ struct SparseTable{
     }
 };
 
+// indexを返す
+template<class T, class F>
+struct SparseTable{
+    vector<T> origin;
+    vector<vector<T>> table;
+    vector<int> log_table;
+    F f;
+    SparseTable(const vector<T> &v, F ff):f(ff){
+        origin = v;
+        int n = v.size();
+        int bit = 0;
+        while((1<<bit) <= n)    bit++;
+        table.resize(bit);
+        table[0].resize(n);
+        for(int i = 0; i < n; i++)  table[0][i] = i;
+        for(int k = 1; k < bit; k++){
+            table[k].resize(n-(1<<k)+1);    // メモリ節約
+            for(int i = 0; i+(1<<k) <= n; i++){
+                table[k][i] = f(v[table[k-1][i]], v[table[k-1][i+(1<<(k-1))]]) ? table[k-1][i] : table[k-1][i+(1<<(k-1))];
+            }
+        }
+        log_table.resize(n+1);
+        for(int i = 2; i <= n; i++) log_table[i] = log_table[i>>1]+1;
+    }
+
+    // 0-indexed, [a, b]
+    int query(int a, int b){
+        int d = b-a+1;
+        int k = log_table[d];
+        return f(origin[table[k][a]], origin[table[k][b-(1<<k)+1]]) ? table[k][a] : table[k][b-(1<<k)+1];
+    }
+};
+
 int main(){
     int n, q;
     scanf("%d %d", &n, &q);
