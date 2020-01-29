@@ -94,9 +94,10 @@ struct Treap{
         if(t->ch[1] != NULL)    flatten(t->ch[1]);
     }
 
-    void flatten(){
+    vector<T> flatten(){
         v.clear();
         flatten(root);
+        return v;
     }
 };
 
@@ -117,9 +118,7 @@ int main(){
             t.erase(cursor);
         }
     }
-    t.flatten();
-    for(int i : t.v)    printf("%d\n", i);
+    vector<int> tmp = t.flatten();
+    for(int i : tmp)    printf("%d\n", i);
     return 0;
 }
-
-// veriied on https://onlinejudge.u-aizu.ac.jp/problems/ITP2_1_C
