@@ -1,24 +1,23 @@
 #include<iostream>
 #include<vector>
-#include<functional>
 #include<climits>
 using namespace std;
 
-template<typename T>
+template<typename T, typename F>
 struct Seg{
 private:
     vector<T> node;
     int n;
-    function<T(T,T)> f;
+    F f;
     T def;
 
 public:
-    Seg(int siz, T d, function<T(T,T)> f) : def(d), f(f) {
+    Seg(int siz, T d, F f) : def(d), f(f) {
         n = 1;
         while(n < siz)  n *= 2;
         node.resize(2*n-1, def);
     }
-    Seg(vector<T> v, T d, function<T(T,T)> f) : def(d), f(f){
+    Seg(vector<T> v, T d, F f) : def(d), f(f){
         n = 1;
         while(n < v.size())  n *= 2;
         node.resize(2*n-1);
@@ -50,7 +49,8 @@ public:
 int main(){
     int n, q;
     cin >> n >> q;
-    Seg<int> stmin(n, INT_MAX, [](int x, int y){return min(x,y);});
+    auto f = [](int x, int y){return min(x,y);};
+    Seg<int, decltype(f)> stmin(n, INT_MAX, f);
     while(q-- > 0){
         int x, y, z;
         cin >> x >> y >> z;
