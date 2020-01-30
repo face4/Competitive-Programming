@@ -1,23 +1,25 @@
 #include<iostream>
 #include<random>
 #include<vector>
-#include<climits>
 using namespace std;
 
-// randをやめた方が良いかもしれない
 // 0-indexed
 template<class T, class F>
 struct Treap{
     struct Node{
         T val, sum;
-        int pri;
+        double pri;
         int cnt;
         Node* ch[2];
-        Node(T v, int p) : val(v), sum(v), pri(p){
+        Node(T v, double p) : val(v), sum(v), pri(p){
             cnt = 1;
             ch[0] = ch[1] = NULL;
         }
     };
+    
+    random_device seed_gen;
+    mt19937 engine;
+    uniform_real_distribution<> dist;
 
     Node* root;
     vector<T> v;
@@ -25,6 +27,8 @@ struct Treap{
     T def;  
     Treap(T def, F f) : f(f), def(def) {
         root = NULL;
+        engine = mt19937(seed_gen());
+        dist = uniform_real_distribution<>(0.0, 1.0);
     }
 
     int count(Node* t)  {return t==NULL ? 0 : t->cnt;}
@@ -45,7 +49,7 @@ struct Treap{
         return s;
     }
 
-    Node* insert(Node* t, int k, T val, int pri){
+    Node* insert(Node* t, int k, T val, double pri){
         if(t == NULL)   return new Node(val, pri);
         int leftCnt = count(t->ch[0]);
         int b = k > leftCnt;
@@ -54,7 +58,14 @@ struct Treap{
         if(t->ch[b]->pri > t->pri)  t = rotate(t, b);
         return t;
     }
-
+    Node* insert_value(Node* t, T val, double pri){
+        if(t == NULL)   return new Node(val, pri);
+        int b = val > t->val;
+        t->ch[b] = insert_value(t->ch[b], val, pri);
+        update(t);
+        if(t->ch[b]->pri > t->pri)  t = rotate(t, b);
+        return t;
+    }
     Node* erase(Node* t, int k, bool me=false){
         if(!me && count(t) <= k)   return t;    // out-of-range
         me |= count(t->ch[0])==k;
@@ -75,9 +86,29 @@ struct Treap{
         }
         return update(t);
     }
+    Node* erase_value(Node* t, T val, bool me=false){
+        if(t == NULL)   return NULL;    // there's no node whose value is val
+        me |= t->val==val;
+        if(me){
+            if(t->ch[0]==NULL && t->ch[1]==NULL){
+                delete t;
+                return NULL;
+            }
+            int b = (t->ch[0]==NULL ? -1 : t->ch[0]->pri) < (t->ch[1]==NULL ? -1 : t->ch[1]->pri);
+            t = rotate(t, b);
+            t->ch[1-b] = erase_value(t->ch[1-b], val, me);
+        }else{
+            if(val < t->val){
+                t->ch[0] = erase_value(t->ch[0], val, me);
+            }else{
+                t->ch[1] = erase_value(t->ch[1], val, me);
+            }
+        }
+        return update(t);
+    }
 
     Node* merge(Node* l, Node* r){
-        Node* tmp = new Node(def, INT_MAX);    // rand()は環境依存
+        Node* tmp = new Node(def, 1.0);
         tmp->ch[0] = l;
         tmp->ch[1] = r;
         update(tmp);
@@ -87,7 +118,7 @@ struct Treap{
 
     // [0, k), [k, n)
     pair<Node*, Node*> split(int k){
-        root = insert(root, k, def, INT_MAX);
+        root = insert(root, k, def, 1.0);
         return make_pair(root->ch[0], root->ch[1]);
     }
 
@@ -122,7 +153,7 @@ struct Treap{
     }
 
     Node* insert(int k, T val){
-        return root = insert(root, k, val, rand());
+        return root = insert(root, k, val, dist(engine));
     }
     Node* erase(int k){
         return root = erase(root, k);
@@ -136,7 +167,12 @@ struct Treap{
     T query(int a, int b){
         return query(root, a, b);
     }
-    
+    Node* insert_value(T val){
+        return root = insert_value(root, val, dist(engine));
+    }
+    Node* erase_value(T val){
+        return root = erase_value(root, val);
+    }
     void flatten(Node* t){
         if(t==NULL) return;
         if(t->ch[0] != NULL)    flatten(t->ch[0]);
@@ -151,37 +187,6 @@ struct Treap{
     }
 };
 
-typedef long long ll;
-
 int main(){
-    int n, q;
-    scanf("%d %d\n", &n, &q);
-    auto f = [](ll x, ll y)->ll{
-        return x+y;
-    };
-    Treap<ll, decltype(f)> l(0, f), r(0, f);
-    for(int i = 0; i < 2*n; i++)  l.insert(i, 0), r.insert(i, 0);
-    int bef = 0;
-    while(q--){
-        char x;
-        int t, y, z;
-        scanf("%c %d %d %d\n", &x, &t, &y, &z);
-        int diff = (t-bef)%(2*n);
-        bef = t;
-        auto pl = l.split(2*n-diff);
-        auto pr = r.split(2*n-diff);
-        l.merge(pl.second, pl.first);
-        r.merge(pr.second, pr.first);
-        if(x == 'L'){
-            l.set(2*n-1-y, z);
-        }else if(x == 'R'){
-            r.set(y, z);
-        }else if(x == 'C'){
-            z--;
-            printf("%lld\n", l.query(2*n-1-z,2*n-1-y)+l.query(y,z)+r.query(2*n-1-z,2*n-1-y)+r.query(y,z));
-        }
-    }
     return 0;
 }
-
-// verified on https://yukicoder.me/problems/no/259
