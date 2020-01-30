@@ -82,7 +82,7 @@ struct Treap{
         tmp->ch[1] = r;
         update(tmp);
         bool me = true;
-        return root = erase(tmp, -1, me);
+        return erase(tmp, -1, me);
     }
 
     // [0, k), [k, n)
